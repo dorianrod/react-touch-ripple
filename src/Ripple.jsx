@@ -1,24 +1,12 @@
 // @flow
-import * as React from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import Transition from 'react-transition-group/Transition';
+import {
+	Transition,
+} from 'react-transition-group';
 
-type Props = {
-    className?: string,
-    rippleX: number,
-    rippleY: number,
-    rippleSize: number,
-    timeout: {| enter: number, exit: number |},
-    color: string,
-};
-
-type State = {
-    rippleEntering: boolean,
-    wrapperExiting: boolean,
-};
-
-class Ripple extends React.Component<Props, State> {
+class Ripple extends React.Component {
     state = {
         rippleEntering: false,
         wrapperExiting: false,

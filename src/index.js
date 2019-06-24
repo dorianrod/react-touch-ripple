@@ -1,1 +1,3 @@
-export { default } from './RippleWrapper';
+//export { default } from './RippleWrapper';
+import RippleWrapper from './RippleWrapper';
+export default RippleWrapper; 

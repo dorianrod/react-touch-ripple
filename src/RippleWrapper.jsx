@@ -1,32 +1,19 @@
 // @flow
-import * as React from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 import cn from 'classnames';
-import TransitionGroup from 'react-transition-group/TransitionGroup';
+import {
+	TransitionGroup,
+} from 'react-transition-group';
+
 import Ripple from './Ripple';
 import './style/index.css';
 
-type Props = {
-    className?: string,
-    color?: string,
-    center?: boolean,
-    component?: string,
-    children: React.Node,
-    timeout: {
-        enter: number,
-        exit: number,
-    },
-};
-
-type State = {
-    rippleArray: Array<React.Element<'Ripple'>>,
-    nextKey: number,
-};
-
-class RippleWrapper extends React.Component<Props, State> {
+class RippleWrapper extends React.Component {
     static defaultProps = {
         component: 'div',
+        coeffSize: 1,
         center: false,
         color: 'currentColor',
         timeout: {
@@ -39,27 +26,28 @@ class RippleWrapper extends React.Component<Props, State> {
         rippleArray: [],
         nextKey: 0,
     };
-    startTimeout: TimeoutID;
-    startWrapper: (() => void) | null = () => {};
-    ignoringMousedown: boolean = false;
 
-    handleMouseDown = (e: SyntheticMouseEvent<>) => { this.start(e); }
+    startTimeout = null;
+    startWrapper: () => null;
+    ignoringMousedown: false;
 
-    handleMouseUp = (e: SyntheticMouseEvent<>) => { this.stop(e); }
+    handleMouseDown = (e) => { this.start(e); }
 
-    handleMouseLeave = (e: SyntheticMouseEvent<>) => { this.stop(e); }
+    handleMouseUp = (e) => { this.stop(e); }
 
-    handleTouchStart = (e: SyntheticTouchEvent<>) => { this.start(e); }
+    handleMouseLeave = (e) => { this.stop(e); }
 
-    handleTouchEnd = (e: SyntheticTouchEvent<>) => { this.stop(e); }
+    handleTouchStart = (e) => { this.start(e); }
 
-    handleTouchMove = (e: SyntheticTouchEvent<>) => { this.stop(e); }
+    handleTouchEnd = (e) => { this.stop(e); }
+
+    handleTouchMove = (e) => { this.stop(e); }
 
     componentWillUnmount () {
         clearTimeout(this.startTimeout);
     }
 
-    start (e: SyntheticTouchEvent<> | SyntheticMouseEvent<>) {
+    start(e) {
         if (e.type === 'mousedown' && this.ignoringMousedown) {
             this.ignoringMousedown = false;
             return;
@@ -68,7 +56,7 @@ class RippleWrapper extends React.Component<Props, State> {
             this.ignoringMousedown = true;
         }
 
-        const { center, timeout } = this.props;
+        const { center, coeffSize, timeout } = this.props;
 
         const element = ReactDOM.findDOMNode(this);
         const rect = element
@@ -101,11 +89,16 @@ class RippleWrapper extends React.Component<Props, State> {
         
         // calculate the size of the ripple
         if (center) {
-            rippleSize = Math.sqrt((2 * Math.pow(rect.width, 2) + Math.pow(rect.height, 2)) / 3);
+            rippleSize = (coeffSize || 1) * Math.sqrt((2 * Math.pow(rect.width, 2) + Math.pow(rect.height, 2)) / 3);
         } else {
             const sizeX = Math.max(Math.abs((element ? element.clientWidth : 0) - rippleX), rippleX) * 2 + 2;
             const sizeY = Math.max(Math.abs((element ? element.clientHeight : 0) - rippleY), rippleY) * 2 + 2;
-            rippleSize = Math.sqrt(Math.pow(sizeX, 2) + Math.pow(sizeY, 2));
+            rippleSize = (coeffSize || 1) * Math.sqrt(Math.pow(sizeX, 2) + Math.pow(sizeY, 2));
+            /*
+            const sizeX = Math.max(Math.abs((element ? element.clientWidth : 0) - rippleX), rippleX) * 2 + 2;
+            const sizeY = Math.max(Math.abs((element ? element.clientHeight : 0) - rippleY), rippleY) * 2 + 2;
+            rippleSize = 1.2 * Math.sqrt(Math.pow(sizeX, 2) + Math.pow(sizeY, 2)) / 2;*/
+           //rippleSize = 1.2 * Math.max(sizeX, sizeY);
         }
 
         // Execute
@@ -126,12 +119,7 @@ class RippleWrapper extends React.Component<Props, State> {
         }
     }
 
-    createRipple (params: { 
-        rippleX: number, 
-        rippleY: number, 
-        rippleSize: number, 
-        timeout: { enter: number, exit: number } 
-    }) {
+    createRipple(params) {
         const { rippleX, rippleY, rippleSize, timeout } = params;
         let rippleArray = this.state.rippleArray;
 
@@ -153,7 +141,7 @@ class RippleWrapper extends React.Component<Props, State> {
         });
     }
 
-    stop (e: SyntheticEvent<>) {
+    stop(e) {
         clearTimeout(this.startTimeout);
         const { rippleArray } = this.state;
 
@@ -189,6 +177,8 @@ class RippleWrapper extends React.Component<Props, State> {
             component: Component,
             children,
             color,
+            timeout,
+            coeffSize,
             ...other
         } = this.props;
 
@@ -205,7 +195,7 @@ class RippleWrapper extends React.Component<Props, State> {
             >
                 {children}
                 <TransitionGroup
-                    component="span"
+                    component={null}
                     enter
                     exit
                 >

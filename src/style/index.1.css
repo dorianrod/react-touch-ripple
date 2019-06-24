@@ -1,24 +1,15 @@
 .rtr-root {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    overflow: hidden;
-    left: 0;
-    top: 0;
-
-    &.clear {
-        opacity: 0.65;
-    }
+    display: none;
 }
-
+/*
 .rtr-ripple-wrapper {
     display: block;
     opacity: 1;
     pointer-events: none;
-}
+}*/
 
 .rtr-ripple {
+    pointer-events: none;
     position: absolute;
     width: 50px;
     height: 50px;
